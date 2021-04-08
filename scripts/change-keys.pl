@@ -1,6 +1,5 @@
 use strict;
 use warnings FATAL => 'all';
-use Data::Dumper;
 
 my $default_spec_file = $ARGV[0];
 my $output_dir = $ARGV[1];
