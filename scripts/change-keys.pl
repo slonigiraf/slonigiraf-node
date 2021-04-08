@@ -5,16 +5,14 @@ my $default_spec_file = $ARGV[0];
 my $output_dir = $ARGV[1];
 $output_dir =~ s/\/$//;
 
-if (-e "$output_dir") {
-    if (-e "$default_spec_file") {
-        create_project($default_spec_file, $output_dir);
-    }
-    else {
-        print("Can't open file: $default_spec_file!\n");
-    }
+unless (-e "$output_dir") {
+    system("mkdir -p $output_dir");
+}
+if (-e "$default_spec_file") {
+    create_project($default_spec_file, $output_dir);
 }
 else {
-    print("Output directory doesn't exist: ", $output_dir, "\n");
+    print("Can't open file: $default_spec_file!\n");
 }
 
 sub create_project {
@@ -28,10 +26,10 @@ sub create_project {
     system("rm -Rf $output_keys_dir");
     system("mkdir $output_keys_dir");
 
-    my $output_alice_babe_config_file = "$output_dir/alice_babe_config.json";
-    my $output_alice_gran_config_file = "$output_dir/alice_gran_config.json";
-    my $output_bob_babe_config_file = "$output_dir/bob_babe_config.json";
-    my $output_bob_gran_config_file = "$output_dir/bob_gran_config.json";
+    my $output_alice_babe_config_file = "$output_keys_dir/alice_babe_config.json";
+    my $output_alice_gran_config_file = "$output_keys_dir/alice_gran_config.json";
+    my $output_bob_babe_config_file = "$output_keys_dir/bob_babe_config.json";
+    my $output_bob_gran_config_file = "$output_keys_dir/bob_gran_config.json";
 
     system("rm -Rf $output_alice_babe_config_file");
     system("rm -Rf $output_alice_gran_config_file");
@@ -95,12 +93,22 @@ sub create_project {
     write_insert_key_json("babe", "$output_keys_dir/$bob_sr25519", $output_bob_babe_config_file);
     write_insert_key_json("gran", "$output_keys_dir/$bob_ed2551", $output_bob_gran_config_file);
 
+    #Encrypt keys directory
+    encrypt_keys_directory($output_keys_dir,"123456");
 }
 
 sub generate_ed2551_key {
     my ($sr25519_file, $ed2551_file) = @_;
     my ($phrase, $address, $public_key) = read_key_file($sr25519_file);
     system("subkey inspect --scheme ed25519 \"$phrase\" > $ed2551_file");
+}
+
+sub encrypt_keys_directory {
+    my ($output_keys_dir, $password) = @_;
+    system("zip -er $output_keys_dir.zip $output_keys_dir");
+    if (-e "$output_keys_dir.zip") {
+        system("rm -Rf $output_keys_dir");
+    }
 }
 
 sub generate_sr25519_key {
