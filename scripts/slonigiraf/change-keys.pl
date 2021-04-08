@@ -1,9 +1,13 @@
 use strict;
 use warnings FATAL => 'all';
 
+my $chain_keys = "chain_keys";
 my $default_spec_file = $ARGV[0];
 my $output_dir = $ARGV[1];
 $output_dir =~ s/\/$//;
+#Configure file and directories names. Remove old data
+my $output_spec_file = "$output_dir/chain-plain.json";
+my $output_keys_dir = "$output_dir/$chain_keys";
 
 unless (-e "$output_dir") {
     system("mkdir -p $output_dir");
@@ -17,10 +21,6 @@ else {
 
 sub create_project {
     my ($default_spec_file, $output_dir) = @_;
-
-    #Configure file and directories names. Remove old data
-    my $output_spec_file = "$output_dir/chain-plain.json";
-    my $output_keys_dir = "$output_dir/chain_keys";
 
     system("rm -Rf $output_spec_file");
     system("rm -Rf $output_keys_dir");
@@ -94,7 +94,7 @@ sub create_project {
     write_insert_key_json("gran", "$output_keys_dir/$bob_ed2551", $output_bob_gran_config_file);
 
     #Encrypt keys directory
-    encrypt_keys_directory($output_keys_dir,"123456");
+    encrypt_keys_directory();
 }
 
 sub generate_ed2551_key {
@@ -104,8 +104,7 @@ sub generate_ed2551_key {
 }
 
 sub encrypt_keys_directory {
-    my ($output_keys_dir, $password) = @_;
-    system("zip -er $output_keys_dir.zip $output_keys_dir");
+    system("cd $output_dir && zip -er $chain_keys.zip $chain_keys");
     if (-e "$output_keys_dir.zip") {
         system("rm -Rf $output_keys_dir");
     }
