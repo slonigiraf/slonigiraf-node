@@ -14,8 +14,7 @@ unless (-e "$output_dir") {
 }
 if (-e "$default_spec_file") {
     create_project($default_spec_file, $output_dir);
-}
-else {
+} else {
     print("Can't open file: $default_spec_file!\n");
 }
 
